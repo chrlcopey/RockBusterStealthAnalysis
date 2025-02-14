@@ -7,17 +7,17 @@ The data set that contains information about Rockbuster’s films, inventory, st
 
 # SYSTEM USED
 
-pgAdmin4.
-PostgreSQL: RDBMS
-Tableau Public.
-Excel
+* pgAdmin4.
+* PostgreSQL: RDBMS
+* Tableau Public.
+* Excel
 
 # KEY QUESTIONS
 
-What was the average rental duration for all videos?
-Which movies contributed the most and least to revenue gain?
-Do sales figures vary between geographical regions?
-In which countries are Rockbuster’s customers based?
-Where are customers with a high lifetime value located?
-What movie genres generate the most revenue?
+* What was the average rental duration for all videos?
+* Which movies contributed the most and least to revenue gain?
+* Do sales figures vary between geographical regions?
+* In which countries are Rockbuster’s customers based?
+* Where are customers with a high lifetime value located?
+* What movie genres generate the most revenue?
 
