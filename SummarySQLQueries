@@ -1,0 +1,175 @@
+# SQL Query to calculate descriptive statistics within numerical columns in FILM table
+
+SELECT 
+COUNT (*) AS total_films,
+MIN (release_year) AS min_released_year,
+MAX (release_year) AS max_released_year,
+AVG (release_year) AS avg_released_year,
+MIN (rental_duration) AS min_rental_duration,
+MAX (rental_duration) AS max_rental_duration,
+AVG (rental_duration) AS avg_rental_duration,
+MIN(rental_rate) AS min_rental_rate,
+MAX (rental_rate) AS max_rental_rate,
+AVG (rental_rate) AS avg_rental_rate,
+MIN (length) AS min_film_length,
+MAX (length) AS max_film_length,
+AVG (length) AS avg_film_length,
+MIN (replacement_cost) AS min_replacement_cost,
+MAX (replacement_cost) AS max_replacement_cost,
+AVG (replacement_cost) AS avg_replacement_cost
+FROM film;
+
+# SQL Query to for calculate descriptive statistics within non-numerical columns in FILM Table
+
+SELECT
+MODE() WITHIN GROUP (ORDER BY title) AS modal_title,
+MODE() WITHIN GROUP (ORDER BY description) AS modal_description,
+MODE() WITHIN GROUP (ORDER BY rating) AS modal_rating,
+MODE() WITHIN GROUP (ORDER BY special_features) AS modal_special_features
+FROM film;
+
+# SQL Query to calculate descriptive statistics within numerical columns in Customer table
+
+SELECT
+COUNT(*) AS total_customers,
+AVG(store_id) AS avg_store_id,
+MIN(store_id) AS min_store_id,
+MAX(store_id) AS max_store_id,
+AVG(active) AS avg_active,
+MIN(active) AS min_active,
+MAX(active) AS max_active,
+AVG(customer_id) AS avg_customer_id,
+MIN(customer_id) AS min_customer_id,
+MAX(customer_id) AS max_customer_id,
+AVG(address_id) AS avg_address_id,
+MIN(address_id) AS min_address_id,
+MAX(address_id) AS max_address_id,
+MIN(create_date) AS min_create_date,
+MAX(create_date) AS max_create_date
+FROM customer;
+
+# SQL Query for calculate descriptive statistics within non-numerical columns in Customer table
+
+SELECT
+MODE() WITHIN GROUP (ORDER BY first_name) AS modal_first_name,
+MODE() WITHIN GROUP (ORDER BY last_name) AS modal_last_name,
+MODE() WITHIN GROUP (ORDER BY email) AS modal_email
+FROM customer;
+
+# SQL Query to get the Top 10 Countries
+
+SELECT D.country,
+COUNT (customer_id) as customer_count
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+GROUP BY D. country
+ORDER BY COUNT(A.customer_id) DESC
+LIMIT 10;
+
+# SQL Query to get the top 10 cities that fall within the top 10 countries
+
+CREATE VIEW top_10_countries AS
+SELECT D.country,
+COUNT (customer_id) as customer_count
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+GROUP BY D. country
+ORDER BY COUNT(A.customer_id) DESC
+LIMIT 10;
+
+SELECT C.city as top_cities,
+                D.country as top_countries,
+COUNT (A.customer_id)as customer_count
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_id
+INNER JOIN city C ON B.city_id = C.city_id
+INNER JOIN country D ON C.country_id = D.country_id
+WHERE D.country IN (SELECT country FROM top_10_countries)
+GROUP BY D.country, C.city
+ORDER BY COUNT(A.customer_id) DESC
+LIMIT 10;
+
+# SLQ Query to get the Top 5 customers from the top 10 cities.
+
+SELECT
+B.customer_id,
+B.first_name,
+B.last_name,
+D.city,
+E.country,
+SUM(A.amount) AS total_payment
+FROM payment A
+INNER JOIN customer B ON A.customer_id = B.customer_id
+INNER JOIN address C ON B.address_id = C.address_id
+INNER JOIN city D ON C.city_id = D.city_id
+INNER JOIN country E ON D.country_id = E.country_id
+--Subquery 1: Filtering Cities
+WHERE D.city IN(
+  SELECT C.city
+  FROM customer A
+  INNER JOIN address B ON A.address_id = B.address_id
+  INNER JOIN city C ON B.city_id = C.city_id
+  INNER JOIN country D ON C.country_id = D.country_id
+  --Subquery 2: Filtering Countries
+  WHERE D.country IN(
+    SELECT D.country
+    FROM customer A
+    INNER JOIN address B ON A.address_id = B.address_id
+    INNER JOIN city C ON B.city_id = C.city_id
+    INNER JOIN country D ON C.country_id = D.country_id
+    GROUP BY D.country
+    ORDER BY COUNT(A.customer_id) DESC
+    LIMIT 10
+    )
+  GROUP BY C.city
+  ORDER BY COUNT(A.customer_id) DESC
+  LIMIT 10
+  )
+GROUP BY B.customer_id, B.first_name, B.last_name, D.city, E.country
+ORDER BY total_payment DESC
+LIMIT 5;
+
+# SQL Query to get the Top 10 Movies that contribuited the most to revenues.
+
+SELECT 
+    A.title, 
+    A.film_id, 
+    SUM(D.amount) AS Total_amount
+FROM film A
+INNER JOIN inventory B ON A.film_id = B.film_id
+INNER JOIN rental C ON B.inventory_id = C.inventory_id
+INNER JOIN payment D ON C.rental_id = D.rental_id
+GROUP BY A.title, A.film_id
+ORDER BY Total_amount DESC
+LIMIT 10;
+
+# SQL Query to get the Top 10 Movies that contribuited the LEAST to revenues.
+
+SELECT 
+    A.title, 
+    A.film_id, 
+    SUM(D.amount) AS Total_amount
+FROM film A
+INNER JOIN inventory B ON A.film_id = B.film_id
+INNER JOIN rental C ON B.inventory_id = C.inventory_id
+INNER JOIN payment D ON C.rental_id = D.rental_id
+GROUP BY A.title, A.film_id
+ORDER BY Total_amount ASC
+LIMIT 10;
+
+
+
+
+
+
+
+
+
+
+
+
+
